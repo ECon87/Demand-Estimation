@@ -9,7 +9,7 @@ Most of the computational heavy-lifting in these exercises will be done by the o
 You should install PyBLP on top of the [Anaconda Distribution](https://www.anaconda.com/). Anaconda comes pre-packaged with all of PyBLP's dependencies and many more Python packages that are useful for statistical computing. Steps:
 
 1. [Install Anaconda](https://docs.anaconda.com/free/anaconda/install/) if you haven't already. You may wish to [create a new environment](https://docs.anaconda.com/free/anacondaorg/user-guide/work-with-environments/) for just these exercises, but this isn't strictly necessary.
-2. [Install PyBLP](https://github.com/jeffgortmaker/pyblp#installation). On the Anaconda command line, you can run the command `pip install pyblp`.
+2. [Install PyBLP](https://github.com/jeffgortmaker/pyblp#installation). On the Anaconda command line, you can run the command `pip install pyblp`. If you have an older version of PyBLP installed, you can update it with `pip install --upgrade pyblp`.
 
 If you're using Python, you have two broad options for how to do the coding exercises.
 
@@ -41,7 +41,7 @@ Finally, both show how to load the data that we'll be using today.
 
 ## Data
 
-Today, you'll use the [`products.csv`](https://github.com/Mixtape-Sessions/Demand-Estimation/raw/main/Exercises/Data/products.csv) dataset, which is a simplified version of [Nevo's (2000)](https://github.com/Mixtape-Sessions/Demand-Estimation/raw/main/Readings/5-Nevo-2000.pdf) fake cereal data with less information and fewer derived columns. The data were motivated by real grocery store scanner data, but due to the proprietary nature of this type of data, the provided data are not entirely real. This dataset has been used as a standard example in much of the literature on BLP estimation.
+Today, you'll use the [`products.csv`](https://github.com/Mixtape-Sessions/Demand-Estimation/raw/main/Exercises/Data/products.csv) dataset, which is a simplified version of [Nevo's (2000)](https://nbviewer.org/github/Mixtape-Sessions/Demand-Estimation/raw/main/Readings/5-Nevo-2000.pdf) [📥](https://github.com/Mixtape-Sessions/Demand-Estimation/raw/main/Readings/5-Nevo-2000.pdf) fake cereal data with less information and fewer derived columns. The data were motivated by real grocery store scanner data, but due to the proprietary nature of this type of data, the provided data are not entirely real. This dataset has been used as a standard example in much of the literature on BLP estimation.
 
 Compared to typical datasets you might use in your own work, the number of observations in this example dataset is quite small. This helps with making these exercises run very fast, but in practice one would want more data than just a couple thousand data points to estimate a flexible model of demand. Typical datasets will also include many more product characteristics. This one only includes a couple to keep the length of the exercises manageable.
 
@@ -81,7 +81,7 @@ Interpret your estimates. Your coefficient on `price_per_serving` should be arou
 
 ### 4. Run the same regression with PyBLP
 
-For the rest of the exercises, we'll use PyBLP do to our demand estimation. This isn't necessary for estimating the pure logit model, which can be done with linear regressions, but using PyBLP allows us to easily run our price cut counterfactual and make the model more flexible in subsequent days' exercises.
+For the rest of the exercises, we'll use PyBLP to do our demand estimation. This isn't necessary for estimating the pure logit model, which can be done with linear regressions, but using PyBLP allows us to easily run our price cut counterfactual and make the model more flexible in subsequent days' exercises.
 
 PyBLP requires that some key columns have specific names. You can use [`.rename`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.rename.html) to rename the following columns so that they can be understood by PyBLP.
 
@@ -90,7 +90,7 @@ PyBLP requires that some key columns have specific names. You can use [`.rename`
 - `market_share` --> `shares`
 - `price_per_serving` --> `prices`
 
-By default, PyBLP treats `prices` as endogenous, so it won't include them in its matrix of instruments. But the "instruments" for running an OLS regression are the same as the full set of regressors. So when running an OLS regression and not account for price endogeneity, we'll "instrument" for `prices` with `prices` themselves. We can do this by creating a new column `demand_instruments0` equal to `prices`. PyBLP will recognize all columns that start with `demand_instruments` and end with `0`, `1`, `2`, etc., as "excluded" instruments to be stacked with the exogenous characteristics to create the full set of instruments.
+By default, PyBLP treats `prices` as endogenous, so it won't include them in its matrix of instruments. But the "instruments" for running an OLS regression are the same as the full set of regressors. So when running an OLS regression and not accounting for price endogeneity, we'll "instrument" for `prices` with `prices` themselves. We can do this by creating a new column `demand_instruments0` equal to `prices`. PyBLP will recognize all columns that start with `demand_instruments` and end with `0`, `1`, `2`, etc., as "excluded" instruments to be stacked with the exogenous characteristics to create the full set of instruments.
 
 With the correct columns in hand, we can initialize our [`pyblp.Problem`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.Problem.html). To specify the same R-style formula for our regressors, use [`pyblp.Formulation`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.Formulation.html). The full code should look like the following.
 
@@ -106,7 +106,7 @@ To estimate the configured problem, use [`.solve`](https://pyblp.readthedocs.io/
 ols_results = ols_problem.solve(method='1s')
 ```
 
-Again, if you `print(ols_results)`, you'll get estimates from the logit model. Make sure that your estimates are the same as those you got from your OLS regression. If you used `'HC0'` standard errors like suggested above, you standard errors should also be the same.
+Again, if you `print(ols_results)`, you'll get estimates from the logit model. Make sure that your estimates are the same as those you got from your OLS regression. If you used `'HC0'` standard errors like suggested above, your standard errors should also be the same.
 
 ### 5. Add market and product fixed effects
 
@@ -132,7 +132,7 @@ Now that we have our pure logit model estimated, we can run our counterfactual o
 
 In your new dataframe with just data from `C01Q2`, create a `new_prices` column that is the same as `prices` but with the price of `F1B04` cut in half. To do this, you could use [`DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html). Then, use [`.compute_shares`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.ProblemResults.compute_shares.html) on your results from the last question, passing `market_id='C01Q2'` to only compute new market shares for our market of interest, and passing `prices=counterfactual_data['new_prices']` to specify that prices should be set to the new prices. This function will re-compute market shares at the changed prices implied by the model's estimates. Store them in a `new_shares` column.
 
-Compute the percent change in shares for each product in the market. From firm one's perspective, do the estimates of cannibalization make sense. That is, do the signs on the percent changes for product `F1B04` and for other products make sense? Would you normally expect percent changes for other products to be different depending on how other products compare to the one whose price is being changed?
+Compute the percent change in shares for each product in the market. From firm one's perspective, do the estimates of cannibalization make sense? That is, do the signs on the percent changes for product `F1B04` and for other products make sense? Would you normally expect percent changes for other products to be different depending on how other products compare to the one whose price is being changed?
 
 ### 8. Compute demand elasticities
 
@@ -144,13 +144,13 @@ These questions will not be directly covered in lecture, but will be useful to t
 
 ### 1. Try different standard errors
 
-By default, PyBLP computed standard errors that are robust to heteroskedasticity. But we may be concerned that unobserved quality $\xi_{jt}$ is systematically correlated across markets for a given product $j$, or across products for a given market $t$. Choose which one you think is more likely and try clustering your standard errors by that dimension. You can do this with `se_type='clustered'` in [`.solve`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.Problem.solve.html), for which you'll need a `clustering_ids` column in your product data. See how your standard error for $\alpha$ changes.
+By default, PyBLP computed standard errors that are robust to heteroskedasticity. But we may be concerned that unobserved quality $\xi_{jt}$ is systematically correlated across markets for a given product $j$, or across products for a given market $t$. Choose which one you think is more likely and try clustering your standard errors by that dimension. You can do this with `se_type='clustered'` in [`.solve`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.Problem.solve.html), for which you'll need a `clustering_ids` column in your product data. See how your standard error for $\hat{\alpha}$ changes.
 
 ### 2. Compute confidence intervals for your counterfactual
 
-Your estimate of $\hat{\alpha}$ comes with a standard error, but your counterfactual demand predictions don't. Ideally we'd like to not only have a point estimate for a counterfactual prediction, but also a measure (up to model misspecification) of how confident we are in these predictions. The easiest way to do this is with a "parametric bootstrap." The intuition is we can draw from the estimated asymptotic distribution of our $\hat{\alpha}$, and for each draw, re-compute demand, and see how demand responds to the same price cut.
+Your estimate $\hat{\alpha}$ comes with a standard error, but your counterfactual demand predictions don't. Ideally we'd like to not only have a point estimate for a counterfactual prediction, but also a measure (up to model misspecification) of how confident we are in these predictions. The easiest way to do this is with a "parametric bootstrap." The intuition is we can draw from the estimated asymptotic distribution of our $\hat{\alpha}$, and for each draw, re-compute demand, and see how demand responds to the same price cut.
 
-You can do a parametric bootstrap with the [`.bootstrap`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.ProblemResults.bootstrap.html) method. Start with just a few draws (e.g., `draws=100`) and remember to set your `seed` so that you get the same draws every time you run the code. When new parameters are drawn, you get new [`.boostrapped_shares`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.BootstrappedResults.html#pyblp.BootstrappedResults.bootstrapped_shares), which take the place of your old `shares`. You can use the same [`.compute_shares`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.ProblemResults.compute_shares.html) method on the [`BootstrapedResults`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.BootstrappedResults.html) class, although you'll have to pass a `prices` argument with prices replicated along a new axis by as many draws as you have.
+You can do a parametric bootstrap with the [`.bootstrap`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.ProblemResults.bootstrap.html) method. Start with just a few draws (e.g., `draws=100`) and remember to set your `seed` so that you get the same draws every time you run the code. When new parameters are drawn, you get new [`.bootstrapped_shares`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.BootstrappedResults.html#pyblp.BootstrappedResults.bootstrapped_shares), which take the place of your old `shares`. You can use the same [`.compute_shares`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.ProblemResults.compute_shares.html) method on the [`BootstrappedResults`](https://pyblp.readthedocs.io/en/stable/_api/pyblp.BootstrappedResults.html) class, although you'll have to pass a `prices` argument with prices replicated along a new axis by as many draws as you have.
 
 Once you have some bootstrapped shares, compute the same percent changes, and compute the 2.5th and 97.5th percentiles of these changes for each product. Are these 95% confidence intervals for your predictions particularly wide?
 

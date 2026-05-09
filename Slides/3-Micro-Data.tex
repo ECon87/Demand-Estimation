@@ -36,7 +36,7 @@
         \pause
         \item But which random coefficients we can add is limited by variation in our data.
         \begin{itemize}
-            \item Recall the linear regression intuition from the last class.
+            \item Recall the linear regression intuition from day 2.
         \end{itemize}
         \pause
         \item Can't credibly estimate a standard deviation in $\Sigma$ on the mushy dummy.
@@ -135,16 +135,16 @@
 
 \begin{frame}{Micro BLP Popularity}
     \begin{columns}
-        \begin{column}{0.37\textwidth}
+        \begin{column}{0.4\textwidth}
             \vspace{-16em}
             \begin{wideitemize}
                 \item First popularized by \\ \cite{petrin2002quantifying} and\defcitealias{berry2004differentiated}{BLP (2004)}\citetalias{berry2004differentiated}.
                 \visible<2->{\item Used a lot. But each paper has different notation.}
-                \visible<3>{\item We'll use the standardized framework for PyBLP from \citet{conlon2023incorporating}.}
+                \visible<3>{\item We'll use the standardized framework for PyBLP from \citet{conlon2025incorporating}.}
             \end{wideitemize}
         \end{column}
-         \begin{column}{0.63\textwidth}
-            \includegraphics[width=\textwidth]{includes/micro_blp.png}
+         \begin{column}{0.6\textwidth}
+            \includegraphics[width=\textwidth]{includes/micro_literature.png}
         \end{column}
     \end{columns}
 \end{frame}
@@ -211,7 +211,7 @@
         \pause
         \item Second, you need to define your \alert{micro part} $p$.
         \begin{itemize}
-            \item Micro values $v_{pijt} = \text{income}_{it}$ means $\overline{v}_p$ is mean surveyed income.
+            \item Micro values $v_{pijt} = \text{income}_{it}$ implies $\overline{v}_p$ is mean surveyed income.
             \item In practice, you specify a second function to compute a matrix of values for each market $t$.
         \end{itemize}
         \pause
@@ -279,7 +279,7 @@
 
 \begin{frame}{Targeting Micro Moments}
     \begin{wideitemize}
-        \item Simplest case: 1 characteristic $x_{jt}$ (e.g.\ price), 1 demographic $y_{it}$ (e.g.\ income).
+        \item Simplest case: 1 characteristic $x_{jt}$ (e.g.\ price) and 1 demographic $y_{it}$ (e.g.\ income).
         \begin{equation*}
             u_{ijt} = \alert<4>{\beta_1} + \alert<2>{\pi_1} y_{it} + (\alert<4>{\beta_x} + \alert<3>{\pi_x} y_{it}) x_{jt} + \xi_{jt} + \varepsilon_{ijt} 
         \end{equation*}
@@ -329,18 +329,18 @@
         \end{equation*}
         \vspace{-1.5\baselineskip}
         \pause
-        \item To target \alert<2>{$\sigma_x$}, want a measure of how much people substitute within $x_{jt}$.
+        \item To target \alert<2>{$\sigma_x$}, we want a measure of how much people substitute within $x_{jt}$.
         \begin{itemize}
             \item In your exercise, you'll match the share ``$\Pr(\text{mushy}_{jt} \text{ and } \text{mushy}_{kt} \mid j \neq 0)$.''
-            \item For non-binary $x_{jt}$, can also match ``$\Cov(x_{jt}, x_{kt} \mid j, k \neq 0)$'' or similar.
+            \item For a continuous $x_{jt}$, you could match ``$\Cov(x_{jt}, x_{kt} \mid j, k \neq 0)$'' or similar.
         \end{itemize}
         \pause
-        \item To target \alert<3>{$\sigma_1$}, want a measure of how much people substitute to $k = 0$.
+        \item To target \alert<3>{$\sigma_1$}, we want a measure of how much people substitute to $k = 0$.
         \begin{itemize}
             \item In your exercise, you'll match another share ``$\Pr(k = 0 \mid j \neq 0)$.''
         \end{itemize}
         \pause
-        \item \alert{Diversion ratios} straightforward to interpret and collect.
+        \item \alert{Diversion ratios} are straightforward to interpret and collect.
     \end{wideitemize}
 \end{frame}
 
@@ -363,7 +363,7 @@
         \begin{itemize}
             \item If $\hat{\sigma}_1$ is large, many people will dislike all inside goods and usually choose $j = 0$.
             \item This reduces the \textit{effective} market size, helping to compensate for a too-large $M_t$.
-            \item See \cite{zhang2023identification} for more on how $\sigma_1$ can help and other solutions.
+            \item See \cite{zhang2024identification} for more on how $\sigma_1$ can help and other solutions.
         \end{itemize}
     \end{wideitemize}
 \end{frame}
@@ -410,7 +410,7 @@
             \item Run an IV regression of $\hat{\delta}_{jt}$ on $x_{jt}$ to recover linear parameters $\hat{\beta}$ like in day 1.
         \end{enumerate}
         \pause
-        \item For a modern take on this ``MLE'' approach, see \cite*{grieco2022conformant}.
+        \item For a modern take on this ``MLE'' approach, see \cite*{grieco2025optimal}.
         \begin{itemize}
             \item Combine 1, 2, and the likelihood for aggregate market shares into a single objective.
             \item Their Julia package\defcitealias{grumps}{Grumps.jl}\citetalias{grumps} efficiently handles the high-dimensional $\delta = \{\delta_{jt}\}_{j,t}$.
@@ -426,7 +426,7 @@
         \end{equation*}
         \vspace{-\baselineskip}
         \pause
-        \item These use all the information in a micro dataset \citep{conlon2023incorporating}.
+        \item These use all the information in a micro dataset \citep{conlon2025incorporating}.
         \begin{itemize}
             \item Intuition for statistical efficiency here is just that MLE is efficient.
         \end{itemize}
@@ -449,7 +449,7 @@
             \item Evaluating improvements to the price cut counterfactual.
         \end{enumerate}
         \pause
-        \item Also try to the supplemental exercises.
+        \item Also try to do the supplemental exercises.
         \begin{itemize}
             \item Varying the market size.
             \item Optimal micro moments.
@@ -463,8 +463,7 @@
 \begin{frame}[c]{}
     \begin{center}
         Good luck with estimating your own demand systems! \\[\baselineskip]
-        \href{mailto:jgortmaker@g.harvard.edu}{jgortmaker@g.harvard.edu} \\
-        \href{https://twitter.com/jeff_gortmaker}{@jeff\_gortmaker}
+        \href{mailto:j.gortmaker@nyu.edu}{j.gortmaker@nyu.edu}
     \end{center}
 \end{frame}
 
